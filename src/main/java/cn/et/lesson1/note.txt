@@ -1,0 +1,16 @@
+springboot集成hibernate
+
+1. 新建一个实体类，类中的属性与表中的列名对应
+
+	对应主键的属性加入注解	
+		@Id  // 指定是主键	
+		@GeneratedValue(strategy = GenerationType.AUTO) // 指定主键生成的策略
+		
+	非主键列属性加入注解：
+		@Column  // 如果实体类的属性名和表中的列名不一致 @Column(name="表中的列名")
+	
+2. 新建一个接口interface继承CrudRepository<实体类名, 主键类型> ，该接口自带crud方法
+
+3. hibernate中新增和修改方法为同一个方法：save()
+	
+	

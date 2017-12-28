@@ -1,0 +1,157 @@
+springboot:新建一个mavenjar项目，pom.xml添加
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+	</parent>
+	
+	<dependencies>
+		<!-- 引入内嵌的Tomcat -->
+		<dependency>
+		<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+	</dependencies>
+
+新建一个class作为启动类：  
+	1. 类名上面加入注解@SpringBootApplication  //该注解为启动注解
+	
+	2.加入main方法	
+		public static void main(String[] args) {
+			SpringApplication.run(当前类名.class, args);
+		}
+		
+	3.运行main方法则可以运行springboot项目，默认会扫描启动类所在包以及子包中带注解的类和接口
+
+
+springboot连接数据库：
+
+	1. src/main/resources：该目录下新建application.properties文件，配置》
+						spring.datasource.url=jdbc:mysql://localhost/work
+						spring.datasource.username=root
+						spring.datasource.password=123456
+						spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+						
+						#配置端口和上下文路径
+						server.port=80
+						server.context-path=/sb
+	2. 引入需要的jar包				
+		<!-- 数据库 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		springboot默认使用的数据库是：mysql,它有默认的版本， 可以加入版本信息也可以不加入。其他的数据库需要加入版本信息
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>		
+
+
+springboot使用事务：
+				启动类使用注解 @EnableTransactionManagement 开启事务支持
+				事务的拦截在service层，只需在service层中的impl类上加入注解@Transactional，该注解中可以配置事务中的所有属性
+				   如果impl类中的方法不需要使用事务只需要在该方法上加@Transactional(readOnly=true)即可
+
+
+
+springboot集成hibernate
+
+1. 新建一个实体类，类中的属性与表中的列名对应
+
+	对应主键的属性加入注解	
+		@Id  // 指定是主键	
+		@GeneratedValue(strategy = GenerationType.AUTO) // 指定主键生成的策略
+		
+	非主键列属性加入注解：
+		@Column  // 如果实体类的属性名和表中的列名不一致 @Column(name="表中的列名")
+	
+2. 新建一个接口interface继承CrudRepository<实体类名, 主键类型> ，该接口自带crud方法
+
+3. hibernate中新增和修改方法为同一个方法：save()
+
+
+springboot的使用可以去官网中点击reference查看
+
+//该注解继承了Contrller,ResponseBody注解
+@RestController
+
+//该注解可以指定不在默认扫描的范围的包
+@ComponentScan("包的路径")
+
+//该注解指定是一个配置类：bean
+@Configuration
+
+ServletRegistrationBean:servlet
+FilterRegistrationBean：过滤器
+ServletListenerRegistrationBean：监听器
+
+1. springboot操作的是一个jar类型的maven项目，如果需要访问使用jsp,需要自己手动建立一个webapp目录位于src/main中，新建的jsp存放在该目录中。
+默认内嵌的Tomcat不支持jsp，需要加入依赖：
+
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+		</dependency>
+
+
+2. springboot使用freemarker,需要在src/main/resources中建立一个templates目录,freemarker文件存放在该目录下,引入依赖：
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
+	访问freemarker文件，通过控制层(该控制层注解使用Controller)路径映射路径直接跳转到freemarker文件，不需要带后缀.ftl
+
+3. springboot中每一个集成的框架都是一个starter,需要使用哪种框架，引入对应的starter即可
+
+4. springboot 扫描的范围是启动类所在包以及该包中所有的子包
+
+ 	注解加在实现类上不加在接口上，映射路径不能重复（被扫描到的包中的类上的映射都不能重复）
+
+ 
+5. springboot更换默认的dbcp2数据源，使用druid数据源，需要引入jar包
+
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.5</version>
+</dependency>
+
+application.properties文件中添加：
+								spring.datasource.type=com.alibaba.druid.pool.DruidDataSource
+								spring.datasource.filters=stat,config,wall,log4j
+								
+路径：localhost/上下文路径/druid/   查看监控
+
+6.springboot集成mybatis 
+ 	1. 引入jar包
+ 	<dependency>
+		 <groupId>org.mybatis.spring.boot</groupId>
+		 <artifactId>mybatis-spring-boot-starter</artifactId>
+		 <version>1.3.0</version>
+	</dependency>
+	
+	2. sql通过注解来映射的接口需要加上@Mapper，所有加了@Mapper注解的接口在扫描范围内都会被扫描
+
+7. actuator:健康检查
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+	引入该starter之后会显示出很多路径，这些路径分别有着对应的功能，其中/health路径查看程序是否运行正常，程序正常显示{"status":"UP"}
+	
+8.开发工具：修改文件不需要手动重启，自动重启
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+		</dependency>
+		
+application.properties文件中添加：spring.devtools.restart.enable=true
+
+9.修改springboot启动的图标：在src/main/resources建一个banner.txt,该文件的内容会替换springboot原有的图标
+
+10.日志级别，默认是info  共分为：TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+	logging.level.root=DEBUG  #根配置：其他框架如果不配置日志级别，默认是根配置的日志级别
+	logging.level.org.springframework.web=DEBUG
+	logging.level.org.hibernate=DEBUG
